@@ -1,40 +1,26 @@
 [
   {
-    "title": "Atlanta Dogwood Festival",
-    "link": "https://example.com/dogwood",
-    "datetime": "2026-04-18T11:00",
+    "title": "Atlanta Symphony Orchestra",
+    "link": "https://www.instagram.com/p/DV9heoriMu4/?hl=en",
+    "datetime": "2026-04-19T16:00",
     "location": "Piedmont Park",
-    "price": "$15"
-  },
-  {
-    "title": "Jazz Night in Midtown",
-    "link": "https://example.com/jazz",
-    "datetime": "2026-04-22T19:30",
-    "location": "Midtown",
     "price": "Free"
   },
   {
-    "title": "BeltLine Art Walk",
-    "link": "https://example.com/artwalk",
-    "datetime": "2026-04-26T15:00",
-    "location": "Atlanta BeltLine",
-    "price": "$10"
-  },
-  {
-    "title": "Saturday Farmers Market",
-    "link": "https://example.com/market",
-    "datetime": "2026-04-11T09:00",
-    "location": "Grant Park",
-    "price": "Free",
+    "title": "Red Light Café Jazz Night",
+    "link": "https://www.instagram.com/redlightcafe/?hl=en",
+    "datetime": "2026-04-22T19:30",
+    "location": "Midtown",
+    "price": "$10",
     "recurring": "weekly",
-    "recurringUntil": "2026-08-31"
+    "recurringUntil": "2027-07-31"
   },
   {
-    "title": "Sunday Picnic Club",
-    "link": "https://example.com/picnic",
-    "datetime": "2026-04-12T14:00",
-    "location": "Piedmont Park",
-    "price": "$5",
+    "title": "Jazz Tuesday",
+    "link": "https://www.instagram.com/burlesbar/?hl=en",
+    "datetime": "2026-04-14T19:00",
+    "location": "Beltline Burle's Bar",
+    "price": "Free",
     "recurring": "weekly",
     "recurringUntil": "2026-07-31"
   }

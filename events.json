@@ -1,0 +1,41 @@
+[
+  {
+    "title": "Atlanta Dogwood Festival",
+    "link": "https://example.com/dogwood",
+    "datetime": "2026-04-18T11:00",
+    "location": "Piedmont Park",
+    "price": "$15"
+  },
+  {
+    "title": "Jazz Night in Midtown",
+    "link": "https://example.com/jazz",
+    "datetime": "2026-04-22T19:30",
+    "location": "Midtown",
+    "price": "Free"
+  },
+  {
+    "title": "BeltLine Art Walk",
+    "link": "https://example.com/artwalk",
+    "datetime": "2026-04-26T15:00",
+    "location": "Atlanta BeltLine",
+    "price": "$10"
+  },
+  {
+    "title": "Saturday Farmers Market",
+    "link": "https://example.com/market",
+    "datetime": "2026-04-11T09:00",
+    "location": "Grant Park",
+    "price": "Free",
+    "recurring": "weekly",
+    "recurringUntil": "2026-08-31"
+  },
+  {
+    "title": "Sunday Picnic Club",
+    "link": "https://example.com/picnic",
+    "datetime": "2026-04-12T14:00",
+    "location": "Piedmont Park",
+    "price": "$5",
+    "recurring": "weekly",
+    "recurringUntil": "2026-07-31"
+  }
+]

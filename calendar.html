@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atlanta Events Calendar</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #eaf4e2;
+      --bg-dark: #d4e7c8;
+      --card: #f4fbef;
+      --panel: #dbeecf;
+      --panel-2: #c7dfb8;
+      --panel-3: #b4d49f;
+      --text: #2f4a34;
+      --muted: #5f7a63;
+      --accent: #90b77d;
+      --accent-dark: #6f9661;
+      --border: #6b8f68;
+      --shadow: #b7ceb0;
+      --event: #7fa96d;
+      --event-text: #f8fff6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 18px;
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      color: var(--text);
+      image-rendering: pixelated;
+      background:
+        linear-gradient(0deg, rgba(255,255,255,0.15), rgba(255,255,255,0.15)),
+        repeating-linear-gradient(
+          0deg,
+          var(--bg) 0px,
+          var(--bg) 16px,
+          var(--bg-dark) 16px,
+          var(--bg-dark) 32px
+        );
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 4px solid var(--border);
+      box-shadow:
+        0 0 0 4px var(--card),
+        0 0 0 8px var(--border),
+        8px 8px 0 0 var(--shadow);
+      padding: 16px;
+    }
+
+    .header {
+      text-align: center;
+      background: var(--panel);
+    }
+
+    .header h1 {
+      margin: 0 0 10px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 0.52rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .calendar-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .month-label {
+      font-size: 0.58rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    button,
+    a.pixel-link {
+      border: 4px solid var(--border);
+      background: var(--accent);
+      color: #f7fff4;
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 0.5rem;
+      line-height: 1.6;
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--shadow);
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    button:hover,
+    a.pixel-link:hover {
+      background: var(--accent-dark);
+    }
+
+    .secondary {
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .secondary:hover {
+      background: var(--panel-2);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .weekday,
+    .day-cell {
+      border: 4px solid var(--border);
+      min-height: 72px;
+      background: #f7fcf4;
+      padding: 6px;
+      font-size: 0.43rem;
+      line-height: 1.5;
+    }
+
+    .weekday {
+      min-height: auto;
+      background: var(--panel);
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .day-cell.muted {
+      opacity: 0.45;
+      background: #edf5e8;
+    }
+
+    .day-cell.has-event {
+      background: var(--event);
+      color: var(--event-text);
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,0.2);
+      cursor: pointer;
+    }
+
+    .day-cell.today {
+      outline: 4px solid var(--accent-dark);
+      outline-offset: -2px;
+    }
+
+    .day-number {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .day-dots {
+      display: grid;
+      gap: 4px;
+    }
+
+    .dot {
+      display: block;
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.7);
+    }
+
+    .panel-title {
+      margin: 0 0 14px;
+      font-size: 0.62rem;
+      line-height: 1.6;
+    }
+
+    .events-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .event-item {
+      border: 4px solid var(--border);
+      background: var(--panel);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .event-item-title {
+      font-size: 0.58rem;
+      line-height: 1.7;
+    }
+
+    .event-item-meta {
+      font-size: 0.48rem;
+      line-height: 1.9;
+      color: var(--muted);
+      display: grid;
+      gap: 4px;
+    }
+
+    .recurring-tag {
+      display: inline-block;
+      width: fit-content;
+      padding: 6px 8px;
+      background: var(--panel-3);
+      border: 4px solid var(--border);
+      font-size: 0.42rem;
+      line-height: 1.5;
+    }
+
+    .empty {
+      border: 4px solid var(--border);
+      background: var(--panel);
+      padding: 18px;
+      font-size: 0.55rem;
+      line-height: 1.8;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 620px) {
+      .weekday, .day-cell {
+        min-height: 58px;
+        font-size: 0.38rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="card header">
+      <h1>ATLANTA EVENTS CALENDAR</h1>
+      <p>click a day to see events</p>
+    </section>
+
+    <section class="card">
+      <div class="calendar-nav">
+        <button id="prevMonthBtn" class="secondary">PREV</button>
+        <div id="monthLabel" class="month-label">MONTH</div>
+        <button id="nextMonthBtn" class="secondary">NEXT</button>
+      </div>
+
+      <div id="calendarGrid" class="calendar-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="panel-title">EVENTS</h2>
+      <div id="eventsList" class="events-list"></div>
+    </section>
+  </div>
+
+  <script>
+    const monthLabel = document.getElementById("monthLabel");
+    const calendarGrid = document.getElementById("calendarGrid");
+    const eventsList = document.getElementById("eventsList");
+    const prevMonthBtn = document.getElementById("prevMonthBtn");
+    const nextMonthBtn = document.getElementById("nextMonthBtn");
+
+    let expandedEvents = [];
+    let currentCalendarDate = null;
+    let selectedDate = null;
+
+    function formatDate(dt) {
+      return new Date(dt).toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function formatMonthLabel(date) {
+      return date.toLocaleString([], {
+        month: "long",
+        year: "numeric"
+      }).toUpperCase();
+    }
+
+    function addDays(date, days) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function changeMonth(baseDate, offset) {
+      return new Date(baseDate.getFullYear(), baseDate.getMonth() + offset, 1);
+    }
+
+    function isSameDay(a, b) {
+      return (
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate()
+      );
+    }
+
+    function expandRecurringEvents(events) {
+      const result = [];
+
+      events.forEach(event => {
+        if (event.recurring === "weekly" && event.recurringUntil) {
+          const start = new Date(event.datetime);
+          const end = new Date(event.recurringUntil + "T23:59:59");
+          let current = new Date(start);
+
+          while (current <= end) {
+            result.push({
+              ...event,
+              datetime: current.toISOString().slice(0, 16),
+              isRecurringInstance: true
+            });
+            current = addDays(current, 7);
+          }
+        } else {
+          result.push({
+            ...event,
+            isRecurringInstance: false
+          });
+        }
+      });
+
+      return result.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+    }
+
+    function getInitialCalendarDate() {
+      return expandedEvents.length
+        ? new Date(new Date(expandedEvents[0].datetime).getFullYear(), new Date(expandedEvents[0].datetime).getMonth(), 1)
+        : new Date();
+    }
+
+    function getEventsForDate(date) {
+      return expandedEvents.filter(event => isSameDay(new Date(event.datetime), date));
+    }
+
+    function renderEventsList(events) {
+      if (!events.length) {
+        eventsList.innerHTML = '<div class="empty">NO EVENTS FOR THIS DAY.</div>';
+        return;
+      }
+
+      eventsList.innerHTML = events.map(event => `
+        <div class="event-item">
+          <div class="event-item-title">${event.title}</div>
+          <div class="event-item-meta">
+            <div>TIME: ${formatDate(event.datetime)}</div>
+            <div>PLACE: ${event.location || "ATLANTA"}</div>
+            <div>PRICE: ${event.price || "N/A"}</div>
+          </div>
+          ${event.recurring === "weekly" ? '<span class="recurring-tag">WEEKLY EVENT</span>' : ''}
+          <div>
+            <a class="pixel-link" href="${event.link}" target="_blank" rel="noopener noreferrer">OPEN EVENT</a>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderCalendar() {
+      const baseDate = currentCalendarDate || getInitialCalendarDate();
+      const year = baseDate.getFullYear();
+      const month = baseDate.getMonth();
+      const today = new Date();
+
+      monthLabel.textContent = formatMonthLabel(baseDate);
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startWeekday = firstDay.getDay();
+      const daysInMonth = lastDay.getDate();
+
+      const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+      calendarGrid.innerHTML = "";
+
+      dayNames.forEach(day => {
+        const el = document.createElement("div");
+        el.className = "weekday";
+        el.textContent = day;
+        calendarGrid.appendChild(el);
+      });
+
+      const eventsByDay = {};
+      expandedEvents.forEach(event => {
+        const d = new Date(event.datetime);
+        if (d.getFullYear() === year && d.getMonth() === month) {
+          const day = d.getDate();
+          if (!eventsByDay[day]) eventsByDay[day] = [];
+          eventsByDay[day].push(event);
+        }
+      });
+
+      for (let i = 0; i < startWeekday; i++) {
+        const empty = document.createElement("div");
+        empty.className = "day-cell muted";
+        calendarGrid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cellDate = new Date(year, month, day);
+        const dayEvents = eventsByDay[day] || [];
+        const classes = ["day-cell"];
+
+        if (dayEvents.length) classes.push("has-event");
+        if (isSameDay(cellDate, today)) classes.push("today");
+
+        const cell = document.createElement("div");
+        cell.className = classes.join(" ");
+
+        const countDots = dayEvents.slice(0, 3).map(() => `<span class="dot"></span>`).join("");
+
+        cell.innerHTML = `
+          <span class="day-number">${day}</span>
+          <div class="day-dots">${countDots}</div>
+        `;
+
+        if (dayEvents.length) {
+          cell.title = dayEvents.map(e => e.title).join(" • ");
+          cell.addEventListener("click", () => {
+            selectedDate = cellDate;
+            renderEventsList(getEventsForDate(cellDate));
+          });
+        }
+
+        calendarGrid.appendChild(cell);
+      }
+    }
+
+    function showEmptyState() {
+      monthLabel.textContent = "NO MONTH";
+      calendarGrid.innerHTML = "";
+      eventsList.innerHTML = '<div class="empty">ADD EVENTS TO EVENTS.JSON.</div>';
+      prevMonthBtn.disabled = true;
+      nextMonthBtn.disabled = true;
+    }
+
+    prevMonthBtn.addEventListener("click", () => {
+      currentCalendarDate = changeMonth(currentCalendarDate, -1);
+      selectedDate = null;
+      renderCalendar();
+      renderEventsList([]);
+    });
+
+    nextMonthBtn.addEventListener("click", () => {
+      currentCalendarDate = changeMonth(currentCalendarDate, 1);
+      selectedDate = null;
+      renderCalendar();
+      renderEventsList([]);
+    });
+
+    fetch("./events.json")
+      .then(res => {
+        if (!res.ok) throw new Error("Could not load events.json");
+        return res.json();
+      })
+      .then(data => {
+        expandedEvents = expandRecurringEvents(data);
+
+        if (!expandedEvents.length) {
+          showEmptyState();
+          return;
+        }
+
+        currentCalendarDate = getInitialCalendarDate();
+        renderCalendar();
+        renderEventsList([]);
+      })
+      .catch(() => {
+        showEmptyState();
+      });
+  </script>
+</body>
+</html>

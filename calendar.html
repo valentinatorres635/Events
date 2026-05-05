@@ -266,6 +266,8 @@
     </section>
   </div>
 
+  <script src="./events.json?v=1"></script>
+
   <script>
     const monthLabel = document.getElementById("monthLabel");
     const calendarGrid = document.getElementById("calendarGrid");
@@ -274,7 +276,7 @@
     const nextMonthBtn = document.getElementById("nextMonthBtn");
 
     let expandedEvents = [];
-    let currentCalendarDate = null;
+    let currentCalendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     let selectedDate = null;
 
     function formatDate(dt) {
@@ -340,12 +342,6 @@
       return result.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
     }
 
-    function getInitialCalendarDate() {
-      return expandedEvents.length
-        ? new Date(new Date(expandedEvents[0].datetime).getFullYear(), new Date(expandedEvents[0].datetime).getMonth(), 1)
-        : new Date();
-    }
-
     function getEventsForDate(date) {
       return expandedEvents.filter(event => isSameDay(new Date(event.datetime), date));
     }
@@ -373,7 +369,7 @@
     }
 
     function renderCalendar() {
-      const baseDate = currentCalendarDate || getInitialCalendarDate();
+      const baseDate = currentCalendarDate;
       const year = baseDate.getFullYear();
       const month = baseDate.getMonth();
       const today = new Date();
@@ -442,11 +438,12 @@
     }
 
     function showEmptyState() {
-      monthLabel.textContent = "NO MONTH";
+      monthLabel.textContent = formatMonthLabel(currentCalendarDate);
       calendarGrid.innerHTML = "";
       eventsList.innerHTML = '<div class="empty">ADD EVENTS TO EVENTS.JSON.</div>';
-      prevMonthBtn.disabled = true;
-      nextMonthBtn.disabled = true;
+      prevMonthBtn.disabled = false;
+      nextMonthBtn.disabled = false;
+      renderCalendar();
     }
 
     prevMonthBtn.addEventListener("click", () => {
@@ -463,26 +460,20 @@
       renderEventsList([]);
     });
 
-    fetch("./events.json")
-      .then(res => {
-        if (!res.ok) throw new Error("Could not load events.json");
-        return res.json();
-      })
-      .then(data => {
-        expandedEvents = expandRecurringEvents(data);
+    function initializeCalendar() {
+      const sourceEvents = Array.isArray(window.EVENTS) ? window.EVENTS : [];
+      expandedEvents = expandRecurringEvents(sourceEvents);
 
-        if (!expandedEvents.length) {
-          showEmptyState();
-          return;
-        }
-
-        currentCalendarDate = getInitialCalendarDate();
-        renderCalendar();
-        renderEventsList([]);
-      })
-      .catch(() => {
+      if (!expandedEvents.length) {
         showEmptyState();
-      });
+        return;
+      }
+
+      renderCalendar();
+      renderEventsList([]);
+    }
+
+    initializeCalendar();
   </script>
 </body>
 </html>

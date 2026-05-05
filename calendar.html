@@ -235,6 +235,12 @@
       text-align: center;
     }
 
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 0.55rem;
+    }
+
     @media (max-width: 620px) {
       .weekday, .day-cell {
         min-height: 58px;
@@ -265,8 +271,6 @@
       <div id="eventsList" class="events-list"></div>
     </section>
   </div>
-
-  <script src="./events.json?v=1"></script>
 
   <script>
     const monthLabel = document.getElementById("monthLabel");
@@ -354,11 +358,11 @@
 
       eventsList.innerHTML = events.map(event => `
         <div class="event-item">
-          <div class="event-item-title">${event.title}</div>
+          <div class="event-item-title">${escapeHtml(event.title)}</div>
           <div class="event-item-meta">
             <div>TIME: ${formatDate(event.datetime)}</div>
-            <div>PLACE: ${event.location || "ATLANTA"}</div>
-            <div>PRICE: ${event.price || "N/A"}</div>
+            <div>PLACE: ${escapeHtml(event.location || "ATLANTA")}</div>
+            <div>PRICE: ${escapeHtml(event.price || "N/A")}</div>
           </div>
           ${event.recurring === "weekly" ? '<span class="recurring-tag">WEEKLY EVENT</span>' : ''}
           <div>
@@ -366,6 +370,12 @@
           </div>
         </div>
       `).join("");
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     function renderCalendar() {
@@ -437,13 +447,9 @@
       }
     }
 
-    function showEmptyState() {
-      monthLabel.textContent = formatMonthLabel(currentCalendarDate);
-      calendarGrid.innerHTML = "";
-      eventsList.innerHTML = '<div class="empty">ADD EVENTS TO EVENTS.JSON.</div>';
-      prevMonthBtn.disabled = false;
-      nextMonthBtn.disabled = false;
-      renderCalendar();
+    function showError(message) {
+      calendarGrid.innerHTML = `<div class="empty" style="grid-column: 1/-1;">${message}</div>`;
+      eventsList.innerHTML = '<div class="empty">UNABLE TO LOAD EVENTS.</div>';
     }
 
     prevMonthBtn.addEventListener("click", () => {
@@ -460,20 +466,39 @@
       renderEventsList([]);
     });
 
-    function initializeCalendar() {
-      const sourceEvents = Array.isArray(window.EVENTS) ? window.EVENTS : [];
-      expandedEvents = expandRecurringEvents(sourceEvents);
-
-      if (!expandedEvents.length) {
-        showEmptyState();
-        return;
+    async function loadEvents() {
+      try {
+        const response = await fetch('./events.json?v=' + Date.now());
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const sourceEvents = await response.json();
+        
+        if (!Array.isArray(sourceEvents)) {
+          throw new Error('Events data is not an array');
+        }
+        
+        expandedEvents = expandRecurringEvents(sourceEvents);
+        
+        if (!expandedEvents.length) {
+          eventsList.innerHTML = '<div class="empty">NO EVENTS FOUND. ADD SOME TO EVENTS.JSON!</div>';
+        }
+        
+        renderCalendar();
+        renderEventsList([]);
+      } catch (error) {
+        console.error('Error loading events:', error);
+        showError('FAILED TO LOAD EVENTS.JSON<br><small>Check console for details</small>');
+        eventsList.innerHTML = '<div class="empty">ERROR: Could not load events file.</div>';
       }
-
-      renderCalendar();
-      renderEventsList([]);
     }
 
-    initializeCalendar();
+    // Show loading state
+    calendarGrid.innerHTML = '<div class="loading">LOADING...</div>';
+    eventsList.innerHTML = '<div class="empty">LOADING EVENTS...</div>';
+    
+    // Load events and initialize
+    loadEvents();
   </script>
 </body>
 </html>
